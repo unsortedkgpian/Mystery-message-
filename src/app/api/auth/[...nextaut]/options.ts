@@ -1,11 +1,13 @@
 import NextAuth from "next-auth";
-
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
+import NextAuthOptions from "next-auth";
+import { Session, JWT } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 
-export const authOptions = NextAuth({
+export const authOptions = {
 	providers: [
 		CredentialsProvider({
 			id: "credentials",
@@ -17,8 +19,11 @@ export const authOptions = NextAuth({
 				},
 				password: { label: "Password", type: "password" },
 			},
+
+			// docs
 			async authorize(credentials: any): Promise<any> {
 				await dbConnect();
+				// trycatch for dbconnect
 				try {
 					const user = await UserModel.findOne({
 						$or: [
@@ -26,11 +31,11 @@ export const authOptions = NextAuth({
 							{ username: credentials.identifier },
 						],
 					});
-
+					// user not found
 					if (!user) {
 						throw new Error("No user found with this email");
 					}
-
+					// user not verified
 					if (!user.isVerified) {
 						throw new Error(
 							"Please verify you account before login"
@@ -53,6 +58,7 @@ export const authOptions = NextAuth({
 			},
 		}),
 	],
+	// next auth will design ui in its onw
 	pages: {
 		signIn: "/sign-in",
 	},
@@ -61,11 +67,29 @@ export const authOptions = NextAuth({
 	},
 	secret: process.env.AUTH_SECRET,
 	callbacks: {
-		async session({ session, token }) {
-			return session;
-		},
-		async jwt({ token, user }) {
+		async jwt({ token, user }: { token: any; user: any }) {
+			// it will give error so for it we use coustom type declare in
+			// types-> next auth
+			if (user) {
+				token._id = user._id?.toString();
+				token.isAcceptingMessages = user.isAcceptingMessages;
+				token.username = user.username;
+				token.isVerified = user.isVerified;
+			}
+
 			return token;
 		},
+
+		async session({ session, token }: { session: any; token: any }) {
+			if (token) {
+				session.user._id = token._id as string;
+				session.user.isVerified = token.isVerified as boolean;
+				session.user.isAcceptingMessages =
+					token.isAcceptingMessages as boolean;
+				session.user.username = token.username as string;
+			}
+
+			return session;
+		},
 	},
-});
+} satisfies NextAuthConfig;
