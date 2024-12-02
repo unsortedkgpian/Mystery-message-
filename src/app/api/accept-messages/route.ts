@@ -1,10 +1,10 @@
-import getServerSession from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/options";
+// import getServerSession from "next-auth";
+// import { authOptions } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 import { User } from "next-auth";
 import { auth } from "@/auth";
-
+//@ts-ignore dont know type
 export async function POST(request: Request) {
 	await dbConnect();
 	const session = await auth();
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 			{ status: 200 }
 		);
 	} catch (error) {
-		console.log("failed to updated user status to accept messages");
+		console.log("failed to updated user status to accept messages", error);
 		return Response.json(
 			{
 				success: false,
@@ -104,7 +104,7 @@ export async function GET(request: Request) {
 			{ status: 200 }
 		);
 	} catch (error) {
-		console.log("failed to updated user status to accept messages");
+		console.log("failed to updated user status to accept messages", error);
 		return Response.json(
 			{
 				success: false,

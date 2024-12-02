@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 		return result.toDataStreamResponse();
 	} catch (error) {
 		if (error instanceof Error) {
-			console.error;
+			console.error("An surver error occured", error);
 		} else {
 			console.error("An unexported error occurecd", error);
 		}

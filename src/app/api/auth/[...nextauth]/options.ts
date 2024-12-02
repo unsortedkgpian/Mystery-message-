@@ -1,10 +1,10 @@
-import NextAuth from "next-auth";
+// import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-import NextAuthOptions from "next-auth";
-import { Session, JWT } from "next-auth";
+// import NextAuthOptions from "next-auth";
+// import { Session, JWT } from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 
 export const authOptions = {
@@ -21,6 +21,7 @@ export const authOptions = {
 			},
 
 			// docs
+			//@ts-ignore dont know type
 			async authorize(credentials: any): Promise<any> {
 				await dbConnect();
 				// trycatch for dbconnect
@@ -52,6 +53,7 @@ export const authOptions = {
 					} else {
 						throw new Error("Password is incorrect");
 					}
+					//@ts-ignore dont know type
 				} catch (err: any) {
 					throw new Error(err);
 				}
@@ -67,6 +69,7 @@ export const authOptions = {
 	},
 	secret: process.env.AUTH_SECRET,
 	callbacks: {
+		//@ts-ignore dont know type
 		async jwt({ token, user }: { token: any; user: any }) {
 			// it will give error so for it we use coustom type declare in
 			// types-> next auth
@@ -79,7 +82,7 @@ export const authOptions = {
 
 			return token;
 		},
-
+		//@ts-ignore dont know type
 		async session({ session, token }: { session: any; token: any }) {
 			if (token) {
 				session.user._id = token._id as string;
