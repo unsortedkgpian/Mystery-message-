@@ -1,6 +1,6 @@
 "use client";
 import { useToast } from "@/hooks/use-toast";
-import { signUpSchema } from "@/schemas/signUpSchema";
+// import { signUpSchema } from "@/schemas/signUpSchema";
 import { useRouter, useParams } from "next/navigation";
 import React from "react";
 import * as z from "zod";
@@ -12,7 +12,6 @@ import { ApiResponse } from "@/types/ApiResponse";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -43,7 +42,7 @@ const VerifyAccount = () => {
 		} catch (error) {
 			console.error("Error is signup of user", error);
 			const axiosError = error as AxiosError<ApiResponse>;
-			let errorMessage = axiosError.response?.data.message;
+			const errorMessage = axiosError.response?.data.message;
 			toast({
 				title: "Signup failed",
 				description: errorMessage,

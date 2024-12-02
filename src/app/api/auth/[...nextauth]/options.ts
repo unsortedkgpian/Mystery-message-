@@ -7,6 +7,21 @@ import UserModel from "@/model/User";
 // import { Session, JWT } from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 
+interface JWTToken {
+	_id?: string;
+	isAcceptingMessages?: boolean;
+	username?: string;
+	isVerified?: boolean;
+}
+
+interface Session {
+	user: {
+		_id?: string;
+		isVerified?: boolean;
+		isAcceptingMessages?: boolean;
+		username?: string;
+	};
+}
 export const authOptions = {
 	providers: [
 		CredentialsProvider({
@@ -19,9 +34,7 @@ export const authOptions = {
 				},
 				password: { label: "Password", type: "password" },
 			},
-
-			// docs
-			//@ts-ignore dont know type
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			async authorize(credentials: any): Promise<any> {
 				await dbConnect();
 				// trycatch for dbconnect
@@ -53,9 +66,8 @@ export const authOptions = {
 					} else {
 						throw new Error("Password is incorrect");
 					}
-					//@ts-ignore dont know type
-				} catch (err: any) {
-					throw new Error(err);
+				} catch (err) {
+					throw new Error((err as Error).message);
 				}
 			},
 		}),
@@ -69,8 +81,9 @@ export const authOptions = {
 	},
 	secret: process.env.AUTH_SECRET,
 	callbacks: {
-		//@ts-ignore dont know type
-		async jwt({ token, user }: { token: any; user: any }) {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		async jwt({ token, user }: { token: JWTToken; user: User | null }) {
 			// it will give error so for it we use coustom type declare in
 			// types-> next auth
 			if (user) {
@@ -82,8 +95,15 @@ export const authOptions = {
 
 			return token;
 		},
-		//@ts-ignore dont know type
-		async session({ session, token }: { session: any; token: any }) {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		async session({
+			session,
+			token,
+		}: {
+			session: Session;
+			token: JWTToken;
+		}) {
 			if (token) {
 				session.user._id = token._id as string;
 				session.user.isVerified = token.isVerified as boolean;

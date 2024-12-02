@@ -3,8 +3,8 @@ import UserModel from "@/model/User";
 import { User } from "next-auth";
 import { auth } from "@/auth";
 import mongoose from "mongoose";
-// @ts-ignore request for type sfatery
-export async function GET(request: Request) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function GET() {
 	await dbConnect();
 	const session = await auth();
 
